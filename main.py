@@ -26,6 +26,13 @@ score = 0
 launcher_x = 700
 launcher_y = 535
 
+# Flipper settings
+left_flipper_down = [(230, 540), (350, 500), (360, 525), (240, 565)]
+left_flipper_up = [(230, 540), (350, 470), (360, 495), (240, 565)]
+
+right_flipper_down = [(570, 540), (450, 500), (440, 525), (560, 565)]
+right_flipper_up = [(570, 540), (450, 470), (440, 495), (560, 565)]
+
 # Bumper settings
 bumpers = [
     {"x": 400, "y": 200, "radius": 30, "color": (255, 0, 255), "points": 25},
@@ -47,6 +54,9 @@ while running:
                 ball_ready = False
                 
 
+    # Check which keys are being held down
+    keys = pygame.key.get_pressed()
+   
     screen.fill((0, 0, 0))
 
     # Move the ball only after it has been launched
@@ -87,6 +97,7 @@ while running:
         ball_speed_x = 0
         ball_speed_y = 0
         ball_ready = True
+    
     # Draw all bumpers
     for bumper in bumpers:
         pygame.draw.circle(
@@ -95,12 +106,24 @@ while running:
            (bumper["x"], bumper["y"]),
            bumper["radius"]
     )
+    
     # Draw sleepy launcher bed
     pygame.draw.rect(screen, (100, 50, 150), (650, 520, 100, 50), border_radius=15)
 
     # Draw launcher walls
     pygame.draw.rect(screen, (80, 80, 80), (640, 350, 10, 220))
     pygame.draw.rect(screen, (80, 80, 80), (750, 350, 10, 220))
+    
+    # Draw flippers
+    if keys[pygame.K_a]:
+        pygame.draw.polygon(screen, (0, 200, 255), left_flipper_up)
+    else:
+        pygame.draw.polygon(screen, (0, 200, 255), left_flipper_down)
+
+    if keys[pygame.K_d]:
+        pygame.draw.polygon(screen, (255, 0, 180), right_flipper_up)
+    else:
+        pygame.draw.polygon(screen, (255, 0, 180), right_flipper_down)
     
     # Draw the ball
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_x), int(ball_y)), ball_radius)
