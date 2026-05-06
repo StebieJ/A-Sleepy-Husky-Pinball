@@ -27,9 +27,11 @@ launcher_x = 700
 launcher_y = 535
 
 # Bumper settings
-bumper_x = 400
-bumper_y = 200
-bumper_radius = 30
+bumpers = [
+    {"x": 400, "y": 200, "radius": 30, "color": (255, 0, 255), "points": 25},
+    {"x": 250, "y": 300, "radius": 30, "color": (0, 255, 255), "points": 50},
+    {"x": 550, "y": 300, "radius": 30, "color": (150, 0, 255), "points": 75},
+]
 
 running = True
 while running:
@@ -63,12 +65,20 @@ while running:
         ball_speed_y *= -1
         score += 10  
 
-    # Check if ball hits the bumper
-    distance = math.sqrt((ball_x - bumper_x) ** 2 + (ball_y - bumper_y) ** 2)
+    # Check if ball hits any bumper
+    for bumper in bumpers:
+        distance_x = ball_x - bumper["x"]
+        distance_y = ball_y - bumper["y"]
+        distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
-    if distance <= ball_radius + bumper_radius:
-        ball_speed_y *= -1
-        score += 25
+        if distance <= ball_radius + bumper["radius"]:
+            ball_speed_x *= -1
+            ball_speed_y *= -1
+            score += bumper["points"]
+
+            # Push the ball away so it does not score over and over
+            ball_x += ball_speed_x * 3
+            ball_y += ball_speed_y * 3
 
     # Reset ball if it falls below the screen
     if ball_y > HEIGHT + ball_radius:
@@ -77,17 +87,28 @@ while running:
         ball_speed_x = 0
         ball_speed_y = 0
         ball_ready = True
-    # Draw bumper
-    pygame.draw.circle(screen, (255, 0, 255), (bumper_x, bumper_y), bumper_radius)
+    # Draw all bumpers
+    for bumper in bumpers:
+        pygame.draw.circle(
+           screen,
+           bumper["color"],
+           (bumper["x"], bumper["y"]),
+           bumper["radius"]
+    )
     # Draw sleepy launcher bed
     pygame.draw.rect(screen, (100, 50, 150), (650, 520, 100, 50), border_radius=15)
+
+    # Draw launcher walls
+    pygame.draw.rect(screen, (80, 80, 80), (640, 350, 10, 220))
+    pygame.draw.rect(screen, (80, 80, 80), (750, 350, 10, 220))
+    
     # Draw the ball
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_x), int(ball_y)), ball_radius)
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
     screen.blit(score_text, (20, 20))
 
     # Win condition
-    if score >= 250:
+    if score >= 1000:
         running = False
     
     pygame.display.update()
