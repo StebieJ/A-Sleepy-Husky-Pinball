@@ -19,8 +19,13 @@ ball_radius = 12
 ball_speed_x = 3
 ball_speed_y = 3
 gravity = 0.03
-ball_ready = False
+ball_ready = True
 score = 0
+
+# Launcher position
+launcher_x = 700
+launcher_y = 535
+
 # Bumper settings
 bumper_x = 400
 bumper_y = 200
@@ -42,10 +47,11 @@ while running:
 
     screen.fill((0, 0, 0))
 
-    # Move the ball
-    ball_x += ball_speed_x
-    ball_y += ball_speed_y
-    ball_speed_y += gravity
+    # Move the ball only after it has been launched
+    if not ball_ready:
+        ball_x += ball_speed_x
+        ball_y += ball_speed_y
+        ball_speed_y += gravity
 
     # Bounce off left and right walls
     if ball_x <= ball_radius or ball_x >= WIDTH - ball_radius:
@@ -66,13 +72,15 @@ while running:
 
     # Reset ball if it falls below the screen
     if ball_y > HEIGHT + ball_radius:
-        ball_x = 400
-        ball_y = 500
+        ball_x = launcher_x
+        ball_y = launcher_y
         ball_speed_x = 0
         ball_speed_y = 0
         ball_ready = True
     # Draw bumper
     pygame.draw.circle(screen, (255, 0, 255), (bumper_x, bumper_y), bumper_radius)
+    # Draw sleepy launcher bed
+    pygame.draw.rect(screen, (100, 50, 150), (650, 520, 100, 50), border_radius=15)
     # Draw the ball
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_x), int(ball_y)), ball_radius)
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
