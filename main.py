@@ -23,8 +23,35 @@ ball_ready = True
 score = 0
 
 # Launcher position
-launcher_x = 700
-launcher_y = 535
+launcher_x = 715
+launcher_y = 545
+
+
+# Playfield outline shape
+playfield_outline = [
+    (95, 560),
+    (80, 525),
+    (68, 480),
+    (60, 420),
+    (58, 350),
+    (60, 280),
+    (68, 210),
+    (85, 145),
+    (115, 95),
+    (160, 60),
+    (225, 35),
+    (305, 18),
+    (400, 15),
+    (495, 18),
+    (575, 35),
+    (640, 60),
+    (690, 95),
+    (725, 140),
+    (748, 200),
+    (760, 270),
+    (770, 340),
+    (770, 410)
+]
 
 # Flipper settings
 left_flipper_down = [(230, 540), (350, 500), (360, 525), (240, 565)]
@@ -32,6 +59,10 @@ left_flipper_up = [(230, 540), (350, 470), (360, 495), (240, 565)]
 
 right_flipper_down = [(570, 540), (450, 500), (440, 525), (560, 565)]
 right_flipper_up = [(570, 540), (450, 470), (440, 495), (560, 565)]
+
+# Table boundary settings
+left_side_wall = pygame.Rect(80, 350, 20, 220)
+right_side_wall = pygame.Rect(650, 350, 20, 220)
 
 # Bumper settings
 bumpers = [
@@ -49,15 +80,15 @@ while running:
         
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and ball_ready:
-                ball_speed_x = 5
-                ball_speed_y = -6
+                ball_speed_x = 0
+                ball_speed_y = -8
                 ball_ready = False
                 
 
     # Check which keys are being held down
     keys = pygame.key.get_pressed()
    
-    screen.fill((0, 0, 0))
+    screen.fill((10, 10, 18))
 
     # Move the ball only after it has been launched
     if not ball_ready:
@@ -70,8 +101,8 @@ while running:
         ball_speed_x *= -1
         score += 10
 
-    # Bounce off the top wall only
-    if ball_y <= ball_radius:
+    # Bounce off the top wall only if the ball is not in the launcher lane
+    if ball_y <= ball_radius and ball_x < 640:
         ball_speed_y *= -1
         score += 10  
 
@@ -90,6 +121,41 @@ while running:
             ball_x += ball_speed_x * 3
             ball_y += ball_speed_y * 3
 
+    # Check if ball hits the flippers
+    ball_rect = pygame.Rect(
+        int(ball_x - ball_radius),
+        int(ball_y - ball_radius),
+        ball_radius * 2,
+        ball_radius * 2
+    )   
+
+    left_flipper_hitbox = pygame.Rect(225, 495, 140, 75)
+    right_flipper_hitbox = pygame.Rect(435, 495, 140, 75)
+
+    if keys[pygame.K_a] and ball_rect.colliderect(left_flipper_hitbox):
+        ball_speed_y = -7
+        ball_speed_x = -4
+        score += 5
+
+    if keys[pygame.K_d] and ball_rect.colliderect(right_flipper_hitbox):
+        ball_speed_y = -7
+        ball_speed_x = 4
+        score += 5
+    
+    # Check if ball hits side boundaries
+    if ball_rect.colliderect(left_side_wall):
+        ball_speed_x = abs(ball_speed_x)
+        score += 2
+
+    if ball_rect.colliderect(right_side_wall):
+        ball_speed_x = -abs(ball_speed_x)
+        score += 2
+
+    # Curve the ball into the table from the launcher lane
+    if ball_x > 640 and ball_y < 80:
+        ball_speed_x = -4
+        ball_speed_y = 2
+    
     # Reset ball if it falls below the screen
     if ball_y > HEIGHT + ball_radius:
         ball_x = launcher_x
@@ -108,12 +174,20 @@ while running:
     )
     
     # Draw sleepy launcher bed
-    pygame.draw.rect(screen, (100, 50, 150), (650, 520, 100, 50), border_radius=15)
+    pygame.draw.rect(screen, (100, 50, 150), (675, 520, 80, 50), border_radius=15)
 
     # Draw launcher walls
-    pygame.draw.rect(screen, (80, 80, 80), (640, 350, 10, 220))
-    pygame.draw.rect(screen, (80, 80, 80), (750, 350, 10, 220))
+    pygame.draw.rect(screen, (45, 45, 65), (660, 350, 10, 220), border_radius=4)
+    pygame.draw.rect(screen, (45, 45, 65), (760, 350, 10, 220), border_radius=4)
+
+   
+    # Draw side boundaries
+    pygame.draw.rect(screen, (45, 45, 65), left_side_wall, border_radius=4)
+    pygame.draw.rect(screen, (45, 45, 65), right_side_wall, border_radius=4)
     
+    # Draw playfield outline
+    #pygame.draw.lines(screen, (80, 80, 80), False, playfield_outline, 8)
+
     # Draw flippers
     if keys[pygame.K_a]:
         pygame.draw.polygon(screen, (0, 200, 255), left_flipper_up)
