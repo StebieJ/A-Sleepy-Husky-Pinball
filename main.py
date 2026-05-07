@@ -132,14 +132,16 @@ while running:
     left_flipper_hitbox = pygame.Rect(225, 495, 140, 75)
     right_flipper_hitbox = pygame.Rect(435, 495, 140, 75)
 
-    if keys[pygame.K_a] and ball_rect.colliderect(left_flipper_hitbox):
-        ball_speed_y = -7
+    if keys[pygame.K_a] and ball_rect.colliderect(left_flipper_hitbox) and ball_speed_y > 0:
+        ball_speed_y = -8
         ball_speed_x = -4
+        ball_y -= 10
         score += 5
 
-    if keys[pygame.K_d] and ball_rect.colliderect(right_flipper_hitbox):
-        ball_speed_y = -7
+    if keys[pygame.K_d] and ball_rect.colliderect(right_flipper_hitbox) and ball_speed_y > 0:
+        ball_speed_y = -8
         ball_speed_x = 4
+        ball_y -= 10
         score += 5
     
     # Check if ball hits side boundaries
